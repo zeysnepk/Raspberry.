@@ -76,11 +76,15 @@ def read_temp(sensor):
         print("Sıcaklık sensörü okunamadı:", e)
 
 def send_sensors():
-    try:
-        sock.sendto(json.dumps(data_sensor).encode("utf-8"), (UDP_IP, UDP_PORT))
-        print("Veri gönderildi")
-    except IOError as e:
-        print("Veri gönderilemedi:", e)
+	try:
+		for key, value in data_sensor.items():
+			print(f"{key}: {value}") 
+		print("---------------------------------")
+		sock.sendto(json.dumps(data_sensor).encode("utf-8"), (UDP_IP, UDP_PORT))
+		print("Veri gönderildi")
+	except IOError:
+		print("Veri okunamadı")
+		time.sleep(0.5)
 
 def read_float(data, index):
     return struct.unpack('f', bytes(data[index:index+4]))[0]
