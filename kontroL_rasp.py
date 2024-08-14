@@ -7,7 +7,6 @@ from mpu6050_2 import MPU6050
 from mlx90614 import MLX90614
 import json
 import threading
-import serial
 
 UDP_IP = "192.168.1.102"  
 UDP_PORT = 5000
@@ -15,7 +14,7 @@ UDP_PORT = 5000
 TCP_IP = "10.42.1.122"
 TCP_PORT = 2222
 
-ser = serial.Serial('/dev/ttyUSB0', 9600)
+COMMAND_ADDRESS = 0x09
 
 bus = smbus.SMBus(1) 
 
@@ -23,33 +22,32 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 data_sensor = {"sicaklik_1": 0.0, "sicaklik_2": 0.0, "acc_x": 0.0, "acc_y": 0.0, "acc_z": 0.0, "roll": 0.0, "pitch": 0.0, "yaw": 0.0}
 
-def start_server():
-    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_socket.bind((TCP_IP, TCP_PORT))
-    server_socket.listen(1)
-    
-    print("Sunucu çalışıyor...")
-    
-    while True:
-        conn, addr = server_socket.accept()
-        print(f"Bağlantı sağlandı: {addr}")
-        
-        while True:
-            data = conn.recv(1)  # 1 byte veri al
-            if not data:
-                break
-            
-            command = int.from_bytes(data, byteorder='big')
-            if command == 0:
-                print("Stop komutu alındı")
-                ser.write(b'0')  # Arduino'ya 0 gönder
-            elif command == 1:
-                print("Start komutu alındı")
-                ser.write(b'1')  # Arduino'ya 1 gönder
-            else:
-                print("Bilinmeyen komut")
-        
-        conn.close()
+def send_i2c_command(command):
+	try:
+		bus.write_byte(COMMAND_ADDRESS, ord(command))
+	except Exception as e:
+		print("I2C Hatasi", e)
+		
+def start_tcp_server():
+	server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	try:
+		server_socket.bind((TCP_IP, TCP_PORT))
+		server_socket.listen(5)
+		print("TCP baslatildi")
+	except Exception as e:
+		print("TCP baslatilamadi", e)
+		
+	while True:
+		try:
+			client_socket, client_address = server_socket.accept()
+			print("Baglanti kabul edildi", client_address)
+			
+			command = client_socket.recv(1024).decode("utf-8")
+			send_i2c_command(command)
+			
+			print("Arduino ya komut gonderildi", command)
+		except Exception as e:
+			print("Arduino ya komut gonderilemedi", e)
 		
                 
 def read_gyro(mpu, old_accel, old_gyro):
