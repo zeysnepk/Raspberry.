@@ -4,7 +4,9 @@ import time
 # GPIO ayarları
 GPIO.setmode(GPIO.BCM)
 SENSOR_PIN = 17  # E3Z-LL86 sensörünün bağlı olduğu GPIO pini
-GPIO.setup(SENSOR_PIN, GPIO.IN)
+
+# GPIO girişini pull-down ile ayarla
+GPIO.setup(SENSOR_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
 try:
     while True:
