@@ -3,21 +3,21 @@ import time
 import struct
 import socket
 import threading
-import Motor_2
+import Motor
 
 bus = smbus.SMBus(1) 
 
-TCP_IP = "raspi_ip"
+TCP_IP = "192.168.157.71"
 TCP_PORT = 2222
 
 def run_motor(command):
     try:
-        Motor_2.motor_control(command)
+        Motor.motor_control(command)
         print(f"Motorlar {command} olarak çalışıyor...")
     except Exception as e:
         print("Motor kontrolü başarısız oldu:", e)
     finally:
-        Motor_2.cleanup()
+        Motor.cleanup()
 
     
 def start_tcp_server():
@@ -35,7 +35,8 @@ def start_tcp_server():
             print(f"Bağlantı kabul edildi: {client_address}")
 
             command = client_socket.recv(1024).decode('utf-8')
-            run_motor(command) 
+            Motor.motor_control(command) 
+            print(command)
             print("Arduino ya komut gönderildi --->", command)
 
         except Exception as e:
