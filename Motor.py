@@ -17,8 +17,8 @@ p = GPIO.PWM(en, 1000)
 p.start(0)  # PWM sinyalini başlangıçta 0 olarak ayarla, motoru tamamen durdur
 
 def run_motor():
-        GPIO.output(in1, GPIO.HIGH)
-        GPIO.output(in2, GPIO.LOW)
+        GPIO.output(in1, GPIO.LOW)
+        GPIO.output(in2, GPIO.HIGH)
     
 def stop_motor():
         GPIO.output(in1, GPIO.LOW)
