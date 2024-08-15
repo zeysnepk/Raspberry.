@@ -14,15 +14,16 @@ GPIO.output(in1, GPIO.LOW)
 GPIO.output(in2, GPIO.LOW)
 p = GPIO.PWM(en, 1000)
 
-p.start(25)
+p.start(0)  # PWM sinyalini başlangıçta 0 olarak ayarla, motoru tamamen durdur
+
 print("\n")
 print("The default speed & direction of motor is LOW & Forward.....")
 print("r-run s-stop f-forward b-backward l-low m-medium h-high e-exit")
 print("\n")    
 
 while True:
-    x = input()  # raw_input() -> input() olarak değiştirildi
-    
+    x = input()  # Python 3'te raw_input() yerine input()
+
     if x == 'r':
         print("run")
         if temp1 == 1:
@@ -40,6 +41,7 @@ while True:
         print("stop")
         GPIO.output(in1, GPIO.LOW)
         GPIO.output(in2, GPIO.LOW)
+        p.ChangeDutyCycle(0)  # Motoru durdurmak için PWM sinyalini 0 yap
         x = 'z'
 
     elif x == 'f':
